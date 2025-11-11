@@ -1,13 +1,19 @@
 import { GoogleGenAI, Chat } from "@google/genai";
 import type { Message } from '../types';
 
-const API_KEY = process.env.API_KEY;
+// Try multiple ways to get the API key
+const API_KEY = (import.meta.env.VITE_GEMINI_API_KEY as string) || process.env.API_KEY || process.env.VITE_GEMINI_API_KEY;
 
 console.log('Gemini Service initializing...');
 console.log('API_KEY available:', !!API_KEY);
+console.log('API_KEY value (first 10 chars):', API_KEY?.substring(0, 10) || 'undefined');
 
 if (!API_KEY) {
-    console.error("API_KEY environment variable is not set. The application will not be able to connect to the Gemini API.");
+    console.error("❌ CRITICAL: API_KEY not found! Checked:", {
+        'import.meta.env.VITE_GEMINI_API_KEY': !!import.meta.env.VITE_GEMINI_API_KEY,
+        'process.env.API_KEY': !!process.env.API_KEY,
+        'process.env.VITE_GEMINI_API_KEY': !!process.env.VITE_GEMINI_API_KEY
+    });
 }
 
 let ai: any = null;
@@ -15,12 +21,12 @@ let ai: any = null;
 try {
     if (API_KEY) {
         ai = new GoogleGenAI({ apiKey: API_KEY });
-        console.log('GoogleGenAI initialized successfully');
+        console.log('✅ GoogleGenAI initialized successfully');
     } else {
-        console.warn('Skipping GoogleGenAI initialization - no API key');
+        console.warn('⚠️ Skipping GoogleGenAI initialization - no API key');
     }
 } catch (error) {
-    console.error('Failed to initialize GoogleGenAI:', error);
+    console.error('❌ Failed to initialize GoogleGenAI:', error);
 }
 
 const model = 'gemini-2.5-flash';
