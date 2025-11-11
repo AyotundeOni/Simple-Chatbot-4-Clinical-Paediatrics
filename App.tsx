@@ -131,10 +131,15 @@ const App: React.FC = () => {
             text: mainResponse,
         };
 
+        console.log('Before update - messages count:', activeConversationId ? conversations.find(c => c.id === activeConversationId)?.messages.length : 0);
+
         // Final UI update: replace loading indicator with model message and add new suggestions
         setConversations(prev => prev.map(convo => {
             if (convo.id === activeConversationId) {
+                console.log('Current messages:', convo.messages.length);
                 const messagesWithoutLoading = convo.messages.slice(0, -1);
+                console.log('After removing loading:', messagesWithoutLoading.length);
+                console.log('Adding model message, total will be:', messagesWithoutLoading.length + 1);
                 return { ...convo, messages: [...messagesWithoutLoading, modelMessage], suggestions: suggestions };
             }
             return convo;
@@ -147,10 +152,12 @@ const App: React.FC = () => {
             role: 'model',
             text: "Sorry, I couldn't get a response. Please try again.",
         };
+        console.log('Error - Current messages before update:', activeConversationId ? conversations.find(c => c.id === activeConversationId)?.messages.length : 0);
         // Error UI update: replace loading indicator with error message
         setConversations(prev => prev.map(convo => {
             if (convo.id === activeConversationId) {
                 const messagesWithoutLoading = convo.messages.slice(0, -1);
+                console.log('Error - Removing loading, keeping:', messagesWithoutLoading.length);
                 return { ...convo, messages: [...messagesWithoutLoading, errorMessage], suggestions: [] };
             }
             return convo;
