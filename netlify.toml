@@ -1,0 +1,17 @@
+# Netlify configuration for the Gemini AI Chatbot
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[dev]
+  command = "npm run dev"
+  port = 3000
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Environment variables can be set in the Netlify UI under:
+# Site Settings > Build & Deploy > Environment > Environment Variables
