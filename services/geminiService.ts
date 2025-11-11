@@ -3,11 +3,25 @@ import type { Message } from '../types';
 
 const API_KEY = process.env.API_KEY;
 
+console.log('Gemini Service initializing...');
+console.log('API_KEY available:', !!API_KEY);
+
 if (!API_KEY) {
     console.error("API_KEY environment variable is not set. The application will not be able to connect to the Gemini API.");
 }
 
-const ai = new GoogleGenAI({ apiKey: API_KEY! });
+let ai: any = null;
+
+try {
+    if (API_KEY) {
+        ai = new GoogleGenAI({ apiKey: API_KEY });
+        console.log('GoogleGenAI initialized successfully');
+    } else {
+        console.warn('Skipping GoogleGenAI initialization - no API key');
+    }
+} catch (error) {
+    console.error('Failed to initialize GoogleGenAI:', error);
+}
 
 const model = 'gemini-2.5-flash';
 
@@ -15,11 +29,12 @@ const model = 'gemini-2.5-flash';
 const systemInstruction = "You are an expert Paediatric Clinical Companion. Your responses must be structured, point-based clinical outlines. Use clear subheadings (e.g., 'Definition', 'Clinical Presentation', 'Management'). Definitions should be concise. Also, use befitting and suitable emojis throughout your response to make the clinical information more engaging and easier to digest. Crucially, every single response MUST include a detailed 'Management' or 'Treatment' section. This is a strict requirement. After providing the clinical outline, you MUST provide a JSON array of 2-3 relevant follow-up questions a user might ask. This JSON array must be the VERY LAST thing in your response, with no other text after it. Example: [\"Tell me more about treatment options\", \"What are the common complications?\"]";
 
 export const sendMessageToGemini = async (history: Message[]): Promise<{ mainResponse: string; suggestions: string[] }> => {
-    if (!API_KEY) {
+    if (!API_KEY || !ai) {
         const errorResult = {
-            mainResponse: "Error: API key is not configured. Please ensure the API_KEY environment variable is set.",
+            mainResponse: "Error: API key is not configured. Please ensure the VITE_GEMINI_API_KEY environment variable is set in Netlify.",
             suggestions: []
         };
+        console.warn('Cannot send message - API not configured:', { API_KEY: !!API_KEY, ai: !!ai });
         return errorResult;
     }
     
